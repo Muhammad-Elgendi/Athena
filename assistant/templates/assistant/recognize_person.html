@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Upload an image to be recognized</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css">
+    <script src="main.js"></script> -->
+</head>
+
+<body>
+    <form method="post" action="{% url 'assistant:recognize' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="myfile"> Image :</label>
+        <input type="file" name="myfile">
+        </br>
+        <button type="submit">Upload</button>
+    </form>
+
+    {% if uploaded_file_url %}
+    <p>Image uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+    <p>Recognition results: </p>
+    <ul>
+        <!-- {% for face in faces %}
+        <li>Image {{ face }}</li>
+        {% endfor %} -->
+        {{ faces }}
+    </ul>
+    {% endif %}
+</body>
+
+</html>

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.views.decorators.csrf import csrf_exempt
 import os, sys
 from os import listdir
 from os.path import isfile, join,split
@@ -16,7 +17,8 @@ import json
 
 def index(request):
     return HttpResponse("Hello, world. My name is Athena.")
-
+    
+@csrf_exempt
 def add_person(request):
     if request.method == 'POST' and request.FILES['myfile'] and request.POST['name']:
         myfile = request.FILES['myfile']
@@ -64,7 +66,7 @@ def add_person(request):
     # return render(request, 'assistant/add_person.html')
     return JsonResponse({'Error': "Please specify a name and upload an image" ,'status' : 'fail'})
 
-
+@csrf_exempt
 def recognize(request):
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']  

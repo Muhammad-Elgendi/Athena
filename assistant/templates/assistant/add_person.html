@@ -12,7 +12,7 @@
 
 <body>
     <form method="post" action="{% url 'assistant:add_person' %}" enctype="multipart/form-data">
-        {% csrf_token %}
+        <!-- {% csrf_token %} -->
         <label for="name"> Person name :</label>
         <input type="text" name="name">
         </br>

@@ -20,7 +20,7 @@ def index(request):
     
 @csrf_exempt
 def add_person(request):
-    if request.method == 'POST' and request.FILES['myfile'] and request.POST['name']:
+    if request.method == 'POST' and request.FILES['myfile'] and request.POST['name'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
         myfile = request.FILES['myfile']
         name = request.POST['name']
         # if(not os.path.isdir(os.path.join(settings.BASE_DIR, 'media/'+name))):
@@ -64,11 +64,11 @@ def add_person(request):
         # })
         return JsonResponse({'uploaded_file_url': uploaded_file_url , 'name' : name ,'status' : 'success'})
     # return render(request, 'assistant/add_person.html')
-    return JsonResponse({'Error': "Please specify a name and upload an image" ,'status' : 'fail'})
+    return JsonResponse({'Error': "Please specify a name and upload an image and enter your auth key" ,'status' : 'fail'})
 
 @csrf_exempt
 def recognize(request):
-    if request.method == 'POST' and request.FILES['myfile']:
+    if request.method == 'POST' and request.FILES['myfile'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
         myfile = request.FILES['myfile']  
         fs = FileSystemStorage(location='media/uploads')
         filename = fs.save(myfile.name, myfile)
@@ -87,7 +87,7 @@ def recognize(request):
         # })
         return JsonResponse({'uploaded_file_url': uploaded_file_url , 'faces' : faces ,'status' : 'success'})    
     # return render(request, 'assistant/recognize_person.html')
-    return JsonResponse({'Error': "Please upload an image" ,'status' : 'fail'})
+    return JsonResponse({'Error': "Please upload an image and enter your auth key" ,'status' : 'fail'})
 
         
 # def index(request):

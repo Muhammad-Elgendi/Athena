@@ -1,4 +1,5 @@
 from .models import Question,Choice
+from django.http import JsonResponse
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect , Http404
 from django.shortcuts import get_object_or_404, render
@@ -55,11 +56,13 @@ def add_person(request):
         faceRecognizer = FaceRecognizer(settings.BASE_DIR+'/assistant/modules')
         faceRecognizer.train_and_save(settings.BASE_DIR+'/media/dataset')
 
-        return render(request, 'assistant/add_person.html', {
-            'uploaded_file_url': uploaded_file_url,
-            'name' : name
-        })
-    return render(request, 'assistant/add_person.html')
+        # return render(request, 'assistant/add_person.html', {
+        #     'uploaded_file_url': uploaded_file_url,
+        #     'name' : name
+        # })
+        return JsonResponse({'uploaded_file_url': uploaded_file_url , 'name' : name ,'status' : 'success'})
+    # return render(request, 'assistant/add_person.html')
+    return JsonResponse({'Error': "Please specify a name and upload an image" ,'status' : 'fail'})
 
 
 def recognize(request):
@@ -76,11 +79,14 @@ def recognize(request):
         # convert into JSON:
         faces = json.dumps(faces)
  
-        return render(request, 'assistant/recognize_person.html', {
-            'uploaded_file_url': uploaded_file_url,
-            'faces' : faces
-        })
-    return render(request, 'assistant/recognize_person.html')
+        # return render(request, 'assistant/recognize_person.html', {
+        #     'uploaded_file_url': uploaded_file_url,
+        #     'faces' : faces
+        # })
+        return JsonResponse({'uploaded_file_url': uploaded_file_url , 'faces' : faces ,'status' : 'success'})    
+    # return render(request, 'assistant/recognize_person.html')
+    return JsonResponse({'Error': "Please upload an image" ,'status' : 'fail'})
+
         
 # def index(request):
 #     latest_question_list = Question.objects.order_by('-pub_date')[:5]

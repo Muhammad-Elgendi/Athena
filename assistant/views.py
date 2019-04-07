@@ -12,7 +12,10 @@ from os import listdir
 from os.path import isfile, join,split
 from assistant.modules.FaceRecognizer import FaceRecognizer
 import json
-
+import datetime
+import base64
+from PIL import Image
+import io
 # Create your views here.
 
 def index(request):
@@ -20,8 +23,9 @@ def index(request):
     
 @csrf_exempt
 def add_person(request):
-    if request.method == 'POST' and request.FILES['myfile'] and request.POST['name'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        myfile = request.FILES['myfile']
+    if request.method == 'POST' and request.POST['myfile'] and request.POST['fileName'] and request.POST['name'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        myfile = request.POST['myfile']
+        fileName = request.POST['fileName']
         name = request.POST['name']
         # if(not os.path.isdir(os.path.join(settings.BASE_DIR, 'media/'+name))):
         #     os.mkdir(os.path.join(settings.BASE_DIR, 'media/'+name), 755)       
@@ -47,12 +51,26 @@ def add_person(request):
             serials[nameOfPerson] = max(1, serials.get(nameOfPerson,1) ,serial) 
         if name not in Persons.keys():
             maxId = max(Persons.values())
-            imgName = name+'.'+str(maxId+1)+'.1.'+split(myfile.name)[-1].split(".")[1]
+            imgName = name+'.'+str(maxId+1)+'.1.'+split(fileName)[-1].split(".")[1]
         else:            
-            imgName = name+'.'+str(Persons[name])+'.'+str(serials[name]+1)+'.'+split(myfile.name)[-1].split(".")[1]
+            imgName = name+'.'+str(Persons[name])+'.'+str(serials[name]+1)+'.'+split(fileName)[-1].split(".")[1]
 
-        filename = fs.save(imgName, myfile)
-        uploaded_file_url = fs.url(filename)
+  
+        # g = open(imgName, "w")
+        # decoded = base64.decodestring(bytes(myfile,'utf8'))
+        # g.write(decoded.decode('utf-8'))
+        # g.close()
+        # with open(fs.location+"/"+imgName, "wb+") as fh:
+        #     fh.write(base64.decodebytes(myfile))
+        # g = open("media/dataset/"+imgName, "wb")
+        # g.write(base64.b64decode(myfile))
+        # g.close()
+        imgdata = base64.b64decode(myfile)
+        image = Image.open(io.BytesIO(imgdata))
+        image.save("media/dataset/"+imgName, "JPEG", quality=80, optimize=True, progressive=True)
+        # fs.location
+        # filename = fs.save(imgName, g)
+        uploaded_file_url = fs.url(fs.location+"/"+imgName)
 
         # train our model
         faceRecognizer = FaceRecognizer(settings.BASE_DIR+'/assistant/modules')
@@ -68,15 +86,22 @@ def add_person(request):
 
 @csrf_exempt
 def recognize(request):
-    if request.method == 'POST' and request.FILES['myfile'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        myfile = request.FILES['myfile']  
+    if request.method == 'POST' and request.POST['myfile'] and request.POST['fileName'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        myfile = request.POST['myfile']  
         fs = FileSystemStorage(location='media/uploads')
-        filename = fs.save(myfile.name, myfile)
-        uploaded_file_url = fs.url(filename)
+        fileName = request.POST['fileName']
+        # g = open(fileName+".jpg", "w")
+        # g.write(base64.decodestring(myfile))
+        # g.close()
+        # filename = fs.save(fileName, g)
+        # uploaded_file_url = fs.url(filename)
+        imgdata = base64.b64decode(myfile)
+        image = Image.open(io.BytesIO(imgdata))
+        image.save("media/uploads/"+fileName, "JPEG", quality=80, optimize=True, progressive=True)
 
         # recognize the image
         faceRecognizer = FaceRecognizer(settings.BASE_DIR+'/assistant/modules')
-        faces = faceRecognizer.recognize_faces(join(settings.BASE_DIR+'/media/uploads',filename),settings.BASE_DIR+'/media/dataset')
+        faces = faceRecognizer.recognize_faces(join(settings.BASE_DIR+'/media/uploads',fileName),settings.BASE_DIR+'/media/dataset')
 
         # convert into JSON:
         faces = json.dumps(faces)
@@ -85,7 +110,7 @@ def recognize(request):
         #     'uploaded_file_url': uploaded_file_url,
         #     'faces' : faces
         # })
-        return JsonResponse({'uploaded_file_url': uploaded_file_url , 'faces' : faces ,'status' : 'success'})    
+        return JsonResponse({'uploaded_file_url': "media/dataset/"+fileName , 'faces' : faces ,'status' : 'success'})    
     # return render(request, 'assistant/recognize_person.html')
     return JsonResponse({'Error': "Please upload an image and enter your auth key" ,'status' : 'fail'})
 

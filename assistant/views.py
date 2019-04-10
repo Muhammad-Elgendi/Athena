@@ -12,6 +12,9 @@ from os import listdir
 from os.path import isfile, join,split
 from assistant.modules.FaceRecognizer import FaceRecognizer
 import json
+import urllib.request
+import shutil
+from urllib.parse import urlparse
 
 # Create your views here.
 
@@ -20,13 +23,16 @@ def index(request):
     
 @csrf_exempt
 def add_person(request):
-    if request.method == 'POST' and request.FILES['myfile'] and request.POST['name'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        myfile = request.FILES['myfile']
+    if request.method == 'POST' and 'imgUrl' in request.POST and 'name' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        imgUrl = request.POST['imgUrl']
+        urlParser =  urlparse(imgUrl)
+        fileName = os.path.basename(urlParser.path)
         name = request.POST['name']
+
         # if(not os.path.isdir(os.path.join(settings.BASE_DIR, 'media/'+name))):
         #     os.mkdir(os.path.join(settings.BASE_DIR, 'media/'+name), 755)       
         # fs = FileSystemStorage(location='media/'+name)
-        fs = FileSystemStorage(location='media/dataset')
+        # fs = FileSystemStorage(location='media/dataset')
 
         #get the path of all the files in the folder
         imagePaths = [join(settings.BASE_DIR+'/media/dataset',f) for f in listdir(settings.BASE_DIR+'/media/dataset')]
@@ -47,12 +53,16 @@ def add_person(request):
             serials[nameOfPerson] = max(1, serials.get(nameOfPerson,1) ,serial) 
         if name not in Persons.keys():
             maxId = max(Persons.values())
-            imgName = name+'.'+str(maxId+1)+'.1.'+split(myfile.name)[-1].split(".")[1]
+            imgName = name+'.'+str(maxId+1)+'.1.'+split(fileName)[-1].split(".")[1]
         else:            
-            imgName = name+'.'+str(Persons[name])+'.'+str(serials[name]+1)+'.'+split(myfile.name)[-1].split(".")[1]
+            imgName = name+'.'+str(Persons[name])+'.'+str(serials[name]+1)+'.'+split(fileName)[-1].split(".")[1]
 
-        filename = fs.save(imgName, myfile)
-        uploaded_file_url = fs.url(filename)
+        # Download the file from `url` and save it locally under `file_name`:
+        with urllib.request.urlopen(imgUrl) as response, open(settings.BASE_DIR+'/media/dataset/'+imgName, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+
+        # filename = fs.save(imgName, myfile)
+        uploaded_file_url = settings.BASE_DIR+'/media/dataset/'+imgName
 
         # train our model
         faceRecognizer = FaceRecognizer(settings.BASE_DIR+'/assistant/modules')
@@ -64,19 +74,27 @@ def add_person(request):
         # })
         return JsonResponse({'uploaded_file_url': uploaded_file_url , 'name' : name ,'status' : 'success'})
     # return render(request, 'assistant/add_person.html')
-    return JsonResponse({'Error': "Please specify a name and upload an image and enter your auth key" ,'status' : 'fail'})
+    else:
+        return JsonResponse({'Error': "Please specify a name and the url of image and enter your auth key" ,'status' : 'fail'})
 
 @csrf_exempt
 def recognize(request):
-    if request.method == 'POST' and request.FILES['myfile'] and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        myfile = request.FILES['myfile']  
-        fs = FileSystemStorage(location='media/uploads')
-        filename = fs.save(myfile.name, myfile)
-        uploaded_file_url = fs.url(filename)
+    if request.method == 'POST' and 'imgUrl' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        imgUrl = request.POST['imgUrl']
+        urlParser =  urlparse(imgUrl)
+        fileName = os.path.basename(urlParser.path)
+
+        # Download the file from `url` and save it locally under `file_name`:
+        with urllib.request.urlopen(imgUrl) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+
+        # fs = FileSystemStorage(location='media/uploads')
+        # filename = fs.save(myfile.name, myfile)
+        uploaded_file_url = settings.BASE_DIR+'/media/uploads/'+fileName
 
         # recognize the image
         faceRecognizer = FaceRecognizer(settings.BASE_DIR+'/assistant/modules')
-        faces = faceRecognizer.recognize_faces(join(settings.BASE_DIR+'/media/uploads',filename),settings.BASE_DIR+'/media/dataset')
+        faces = faceRecognizer.recognize_faces(join(settings.BASE_DIR+'/media/uploads',fileName),settings.BASE_DIR+'/media/dataset')
 
         # convert into JSON:
         faces = json.dumps(faces)
@@ -87,7 +105,8 @@ def recognize(request):
         # })
         return JsonResponse({'uploaded_file_url': uploaded_file_url , 'faces' : faces ,'status' : 'success'})    
     # return render(request, 'assistant/recognize_person.html')
-    return JsonResponse({'Error': "Please upload an image and enter your auth key" ,'status' : 'fail'})
+    else:
+        return JsonResponse({'Error': "Please specify the Url of image and your auth key" ,'status' : 'fail'})
 
         
 # def index(request):

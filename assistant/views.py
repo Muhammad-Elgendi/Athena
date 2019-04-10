@@ -58,7 +58,7 @@ def add_person(request):
             imgName = name+'.'+str(Persons[name])+'.'+str(serials[name]+1)+'.'+split(fileName)[-1].split(".")[1]
 
         # Download the file from `url` and save it locally under `file_name`:
-        with urllib.request.urlopen(imgUrl) as response, open(settings.BASE_DIR+'/media/dataset/'+imgName, 'wb') as out_file:
+        with urllib.request.urlopen(imgUrl) as response, open(settings.BASE_DIR+'/media/dataset/'+imgName, 'wb+') as out_file:
             shutil.copyfileobj(response, out_file)
 
         # filename = fs.save(imgName, myfile)
@@ -85,7 +85,7 @@ def recognize(request):
         fileName = os.path.basename(urlParser.path)
 
         # Download the file from `url` and save it locally under `file_name`:
-        with urllib.request.urlopen(imgUrl) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb') as out_file:
+        with urllib.request.urlopen(imgUrl) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb+') as out_file:
             shutil.copyfileobj(response, out_file)
 
         # fs = FileSystemStorage(location='media/uploads')

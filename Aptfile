@@ -2,5 +2,5 @@ libsm6
 libxrender1
 libfontconfig1
 libice6  
-libtiff4
-libjpeg62
+http://launchpadlibrarian.net/149178897/libtiff4_3.9.7-2ubuntu1_amd64.deb
+http://http.us.debian.org/debian/pool/main/libj/libjpeg6b/libjpeg62_6b1-3+deb7u1_amd64.deb

@@ -16,4 +16,6 @@ urlpatterns = [
     # path('<int:question_id>/vote/', views.vote, name='vote'),
     path('add',views.add_person, name='add_person'),
     path('recognize',views.recognize, name='recognize'),
+    path('chat',views.chat, name='chat'),
+    path('ocr',views.ocr, name='ocr'),
 ]

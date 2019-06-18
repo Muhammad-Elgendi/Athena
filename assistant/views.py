@@ -10,7 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 import os, sys
 from os import listdir
 from os.path import isfile, join,split
-from assistant.modules.FaceRecognizer import FaceRecognizer
+from .modules.FaceRecognizer import FaceRecognizer
+from .modules.Chatbot import Chatbot
+from .modules.TextRecognizer import TextRecognizer
 import json
 import urllib.request
 import shutil
@@ -108,7 +110,40 @@ def recognize(request):
     else:
         return JsonResponse({'Error': "Please specify the Url of image and your auth key" ,'status' : 'fail'})
 
-        
+
+@csrf_exempt
+def chat(request):
+    if request.method == 'POST' and 'msg' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        user_msg = request.POST['msg']
+        chatbot = Chatbot(settings.BASE_DIR+'/assistant/modules')
+        reply , sentiment = chatbot.generate_reply(user_msg)
+        return JsonResponse({'Reply': reply , 'sentiment' : sentiment ,'status' : 'success'})        
+    else:
+        return JsonResponse({'Error': "Please specify the msg of user and your auth key" ,'status' : 'fail'})
+
+@csrf_exempt
+def ocr(request):
+    if request.method == 'POST' and 'img' in request.POST and 'lang' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        img_url = request.POST['img']
+        lang = request.POST['lang']
+        urlParser =  urlparse(img_url)
+        fileName = os.path.basename(urlParser.path)
+
+        # Download the file from `url` and save it locally under `file_name`:
+        with urllib.request.urlopen(img_url) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb+') as out_file:
+            shutil.copyfileobj(response, out_file)
+
+        recognizer = TextRecognizer(settings.BASE_DIR+'/assistant/modules')
+
+        results = recognizer.recognize(settings.BASE_DIR+'/media/uploads/'+fileName)        
+        # loop over the results
+        texts = []       
+        for ((startX, startY, endX, endY), text) in results:
+                texts.append(text)
+        return JsonResponse({'Text': texts ,'status' : 'success'})        
+    else:
+        return JsonResponse({'Error': "Please specify the img_url of the image with the , lang parameter and your auth key" ,'status' : 'fail'})
+
 # def index(request):
 #     latest_question_list = Question.objects.order_by('-pub_date')[:5]
 #     output = ', '.join([q.question_text for q in latest_question_list])

@@ -50,9 +50,9 @@ class Chatbot:
                 return random.choice(GREETING_RESPONSES)
 
     # Handle of emotion
-    def handleEmotion(self,user_response,classifer =None):
+    def handleEmotion(self,user_response):
         analyser = EmotionAnalyser.getInstance(self.path)
-        sentiment , confidence = analyser.classify(user_response,classifer)        
+        sentiment , confidence = analyser.classify(user_response)        
         possitive = ['enthusiasm','fun','happiness','love','surprise','relief']
         negative = ['anger','boredom','hate','sadness','worry']
         nutral = ['empty','neutral'] 
@@ -85,7 +85,7 @@ class Chatbot:
             return self.sent_tokens[idx]
 
     # build up the conversation along with sentiment
-    def generate_reply(self,user_response,classifer =None):
+    def generate_reply(self,user_response):
         user_response=user_response.lower()
         if(user_response!='bye'):
             if(user_response=='thanks' or user_response=='thank you' ):
@@ -98,7 +98,7 @@ class Chatbot:
                     result = self.response(user_response)
                     self.sent_tokens.remove(user_response)
                     if(result == "I am sorry! I don't understand you"):
-                        return self.handleEmotion(user_response,classifer)
+                        return self.handleEmotion(user_response)
                     else :
                         return result , "neutral"
         else:      

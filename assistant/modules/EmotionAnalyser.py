@@ -7,7 +7,6 @@ from nltk import ngrams
 from nltk.tokenize import TweetTokenizer
 import csv
 import _pickle as cPickle
-import joblib
 
 class EmotionAnalyser:
     __instance = None

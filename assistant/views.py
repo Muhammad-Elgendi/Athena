@@ -12,13 +12,12 @@ from os import listdir
 from os.path import isfile, join,split
 from .modules.FaceRecognizer import FaceRecognizer
 from .modules.Chatbot import Chatbot
-# from .modules.TextRecognizer import TextRecognizer
 import json
 import urllib.request
 import shutil
 from urllib.parse import urlparse
-from django.core.cache import cache
-import _pickle as cPickle
+# from django.core.cache import cache
+# import _pickle as cPickle
 
 # Create your views here.
 

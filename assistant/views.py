@@ -16,8 +16,6 @@ import json
 import urllib.request
 import shutil
 from urllib.parse import urlparse
-# from django.core.cache import cache
-# import _pickle as cPickle
 
 # Create your views here.
 

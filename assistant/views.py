@@ -12,7 +12,7 @@ from os import listdir
 from os.path import isfile, join,split
 from .modules.FaceRecognizer import FaceRecognizer
 from .modules.Chatbot import Chatbot
-from .modules.TextRecognizer import TextRecognizer
+# from .modules.TextRecognizer import TextRecognizer
 import json
 import urllib.request
 import shutil
@@ -146,22 +146,23 @@ def chat(request):
 
 @csrf_exempt
 def ocr(request):
-    if request.method == 'POST' and 'img' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        img_url = request.POST['img']
-        urlParser =  urlparse(img_url)
-        fileName = os.path.basename(urlParser.path)
+    # if request.method == 'POST' and 'img' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+    #     img_url = request.POST['img']
+    #     urlParser =  urlparse(img_url)
+    #     fileName = os.path.basename(urlParser.path)
 
-        # Download the file from `url` and save it locally under `file_name`:
-        with urllib.request.urlopen(img_url) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb+') as out_file:
-            shutil.copyfileobj(response, out_file)
+    #     # Download the file from `url` and save it locally under `file_name`:
+    #     with urllib.request.urlopen(img_url) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb+') as out_file:
+    #         shutil.copyfileobj(response, out_file)
 
-        recognizer = TextRecognizer(settings.BASE_DIR+'/assistant/modules')
+    #     recognizer = TextRecognizer(settings.BASE_DIR+'/assistant/modules')
 
-        results = recognizer.recognize(settings.BASE_DIR+'/media/uploads/'+fileName)        
-        # loop over the results
-        texts = []       
-        for ((startX, startY, endX, endY), text) in results:
-                texts.append(text)
-        return JsonResponse({'Text': texts ,'status' : 'success'})        
-    else:
-        return JsonResponse({'Error': "Please specify the img_url of the image with the , lang parameter and your auth key" ,'status' : 'fail'})
+    #     results = recognizer.recognize(settings.BASE_DIR+'/media/uploads/'+fileName)        
+    #     # loop over the results
+    #     texts = []       
+    #     for ((startX, startY, endX, endY), text) in results:
+    #             texts.append(text)
+    #     return JsonResponse({'Text': texts ,'status' : 'success'})        
+    # else:
+    #     return JsonResponse({'Error': "Please specify the img_url of the image with the , lang parameter and your auth key" ,'status' : 'fail'})
+    pass

@@ -1,3 +1,2 @@
 punkt
 stopwords
-wordnet

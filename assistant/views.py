@@ -123,9 +123,8 @@ def chat(request):
 
 @csrf_exempt
 def ocr(request):
-    if request.method == 'POST' and 'img' in request.POST and 'lang' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+    if request.method == 'POST' and 'img' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
         img_url = request.POST['img']
-        lang = request.POST['lang']
         urlParser =  urlparse(img_url)
         fileName = os.path.basename(urlParser.path)
 

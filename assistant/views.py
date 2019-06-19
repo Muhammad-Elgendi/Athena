@@ -115,28 +115,7 @@ def recognize(request):
 @csrf_exempt
 def chat(request):
     if request.method == 'POST' and 'msg' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        user_msg = request.POST['msg']
-
-        # # this key is used to `set` and `get` 
-        # # your trained model from the cache
-        # model_cache_key = 'model_cache' 
-
-        # # get model from cache        
-        # model = cache.get(model_cache_key) 
-
-        # if model is None:
-        #     # your model isn't in the cache
-        #     # so `set` it
-
-        #     # load model
-        #     f = open(settings.BASE_DIR+'/assistant/modules/classifier.pickle', 'rb')  
-        #     model = cPickle.load(f)
-        #     f.close()
-            
-        #     # save in the cache
-        #     # None is the timeout parameter. It means cache forever
-        #     cache.set(model_cache_key, model, None) 
-            
+        user_msg = request.POST['msg']          
         chatbot = Chatbot(settings.BASE_DIR+'/assistant/modules')
         reply , sentiment = chatbot.generate_reply(user_msg)
         return JsonResponse({'Reply': reply , 'sentiment' : sentiment ,'status' : 'success'})        

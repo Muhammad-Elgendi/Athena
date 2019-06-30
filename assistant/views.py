@@ -12,10 +12,14 @@ from os import listdir
 from os.path import isfile, join,split
 from .modules.FaceRecognizer import FaceRecognizer
 from .modules.Chatbot import Chatbot
+from .modules.TextRecognizer import TextRecognizer
 import json
 import urllib.request
 import shutil
 from urllib.parse import urlparse
+# from django.core.cache import cache
+# import _pickle as cPickle
+
 
 # Create your views here.
 
@@ -113,7 +117,26 @@ def recognize(request):
 @csrf_exempt
 def chat(request):
     if request.method == 'POST' and 'msg' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-        user_msg = request.POST['msg']          
+        user_msg = request.POST['msg']   
+        # # this key is used to `set` and `get` 
+        # # your trained model from the cache
+        # model_cache_key = 'model_cache' 
+
+        # # get model from cache        
+        # model = cache.get(model_cache_key) 
+
+        # if model is None:
+        #     # your model isn't in the cache
+        #     # so `set` it
+
+        #     # load model
+        #     f = open(settings.BASE_DIR+'/assistant/modules/classifier.pickle', 'rb')  
+        #     model = cPickle.load(f)
+        #     f.close()
+            
+        #     # save in the cache
+        #     # None is the timeout parameter. It means cache forever
+        #     cache.set(model_cache_key, model, None)        
         chatbot = Chatbot(settings.BASE_DIR+'/assistant/modules')
         reply , sentiment = chatbot.generate_reply(user_msg)
         return JsonResponse({'Reply': reply , 'sentiment' : sentiment ,'status' : 'success'})        
@@ -122,23 +145,24 @@ def chat(request):
 
 @csrf_exempt
 def ocr(request):
-    # if request.method == 'POST' and 'img' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
-    #     img_url = request.POST['img']
-    #     urlParser =  urlparse(img_url)
-    #     fileName = os.path.basename(urlParser.path)
+    if request.method == 'POST' and 'img' in request.POST and 'lang' in request.POST and 'auth' in request.POST and request.POST['auth'] == 'GxsQXvHY5XMo@4%':
+        img_url = request.POST['img']
+        lang = request.POST['lang']
+        urlParser =  urlparse(img_url)
+        fileName = os.path.basename(urlParser.path)
 
-    #     # Download the file from `url` and save it locally under `file_name`:
-    #     with urllib.request.urlopen(img_url) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb+') as out_file:
-    #         shutil.copyfileobj(response, out_file)
+        # Download the file from `url` and save it locally under `file_name`:
+        with urllib.request.urlopen(img_url) as response, open(settings.BASE_DIR+'/media/uploads/'+fileName, 'wb+') as out_file:
+            shutil.copyfileobj(response, out_file)
 
-    #     recognizer = TextRecognizer(settings.BASE_DIR+'/assistant/modules')
+        recognizer = TextRecognizer(settings.BASE_DIR+'/assistant/modules')
 
-    #     results = recognizer.recognize(settings.BASE_DIR+'/media/uploads/'+fileName)        
-    #     # loop over the results
-    #     texts = []       
-    #     for ((startX, startY, endX, endY), text) in results:
-    #             texts.append(text)
-    #     return JsonResponse({'Text': texts ,'status' : 'success'})        
-    # else:
-    #     return JsonResponse({'Error': "Please specify the img_url of the image with the , lang parameter and your auth key" ,'status' : 'fail'})
+        results = recognizer.recognize(settings.BASE_DIR+'/media/uploads/'+fileName,lang = lang)        
+        # loop over the results
+        texts = []       
+        for ((startX, startY, endX, endY), text) in results:
+                texts.append(text)
+        return JsonResponse({'Text': texts ,'status' : 'success'})        
+    else:
+        return JsonResponse({'Error': "Please specify the img_url of the image with the , lang parameter and your auth key" ,'status' : 'fail'})
     pass

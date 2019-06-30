@@ -10,6 +10,7 @@ from .EmotionAnalyser import EmotionAnalyser
 # first-time use only
 # nltk.download('punkt')
 # nltk.download('wordnet')
+# nltk.download('stopwords')
 
 class Chatbot:
     def __init__(self,path):   
@@ -17,7 +18,7 @@ class Chatbot:
         self.path = path     
 
         # reading and preprocessing
-        corpusFile=open(self.path+'/Corpus.txt','r')
+        corpusFile=open(self.path+'/Corpus.txt','r', encoding='utf-8')
         corpus = corpusFile.read()
 
         # converts to lowercase
@@ -50,9 +51,9 @@ class Chatbot:
                 return random.choice(GREETING_RESPONSES)
 
     # Handle of emotion
-    def handleEmotion(self,user_response):
+    def handleEmotion(self,user_response,classfier = None):
         analyser = EmotionAnalyser.getInstance(self.path)
-        sentiment , confidence = analyser.classify(user_response)        
+        sentiment , confidence = analyser.classify(user_response,classfier)        
         possitive = ['enthusiasm','fun','happiness','love','surprise','relief']
         negative = ['anger','boredom','hate','sadness','worry']
         nutral = ['empty','neutral'] 
@@ -85,7 +86,7 @@ class Chatbot:
             return self.sent_tokens[idx]
 
     # build up the conversation along with sentiment
-    def generate_reply(self,user_response):
+    def generate_reply(self,user_response,classfier = None):
         user_response=user_response.lower()
         if(user_response!='bye'):
             if(user_response=='thanks' or user_response=='thank you' ):
@@ -98,7 +99,7 @@ class Chatbot:
                     result = self.response(user_response)
                     self.sent_tokens.remove(user_response)
                     if(result == "I am sorry! I don't understand you"):
-                        return self.handleEmotion(user_response)
+                        return self.handleEmotion(user_response,classfier)
                     else :
                         return result , "neutral"
         else:      

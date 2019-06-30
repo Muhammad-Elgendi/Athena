@@ -88,11 +88,12 @@ class EmotionAnalyser:
         # joblib.dump(classifier, "classifier.save")
  
 
-    def classify(self,statement): 
-        f = open(self.base_path+'/classifier.pickle', 'rb')  
-        classifier = cPickle.load(f)
-        f.close()
-        # classifier = joblib.load("classifier.save")
+    def classify(self,statement,classifier =None): 
+        if classifier == None :
+            f = open(self.base_path+'/classifier.pickle', 'rb')  
+            classifier = cPickle.load(f)
+            f.close()
+            # classifier = joblib.load("classifier.save")
         probdist = classifier.prob_classify(self.extract_features(statement))
         predected_sentiment = probdist.max()
         probability = round(probdist.prob(predected_sentiment), 2)

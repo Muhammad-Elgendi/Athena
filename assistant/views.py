@@ -57,7 +57,7 @@ def add_person(request):
             serial = int(split(imagePath)[-1].split(".")[2])         
             serials[nameOfPerson] = max(1, serials.get(nameOfPerson,1) ,serial) 
         if name not in Persons.keys():
-            maxId = max(Persons.values())
+            maxId = max(Persons.values()) if Persons else 0
             imgName = name+'.'+str(maxId+1)+'.1.'+split(fileName)[-1].split(".")[1]
         else:            
             imgName = name+'.'+str(Persons[name])+'.'+str(serials[name]+1)+'.'+split(fileName)[-1].split(".")[1]
